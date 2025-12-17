@@ -64,7 +64,7 @@ This project was created using Ollama CLI and nemotron-3-nano:30b with a custom 
 ```bash
 ollama pull nemotron-3-nano:30b
 ollama create nemotron-3-nano:30b-128k -f Modelfile.nemotron-3-nano_30b-128k
-ollama run --verbose nemotron-3-nano:30b < prompt.md > output.md
+ollama run --verbose nemotron-3-nano:30b-128k < prompt.md > output.md
 ```
 
 ```
