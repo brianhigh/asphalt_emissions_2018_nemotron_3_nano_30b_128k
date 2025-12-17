@@ -1,8 +1,8 @@
 # My custom Modelfile to increase context length
-FROM mistral-nemo:12b
+FROM nemotron-3-nano:30b
 
 # Set the context window size (e.g., 4096, 8192, 16384, etc.)
 PARAMETER num_ctx 131072
 
-# ollama pull mistral-nemo:12b
-# ollama create mistral-nemo:12b-128k -f Modelfile.mistral-nemo_12b-128k
+# ollama pull nemotron-3-nano:30b
+# ollama create nemotron-3-nano:30b-128k -f Modelfile.nemotron-3-nano_30b-128k

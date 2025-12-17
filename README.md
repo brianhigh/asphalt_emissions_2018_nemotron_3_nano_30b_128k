@@ -59,7 +59,7 @@ asphalt_emissions_2018_nemotron_3_nano_30b_128k/
 
 ## Colophon
 
-This project was created using Ollama CLI and nemotron-3-nano:30b with a custom context length (131072 tokens). (See [Modelfile](Modelfile.mistral-nemo_12b-128k).) The [prompt](prompt.md) is shown in the output below have a token count of 1237 tokens.
+This project was created using Ollama CLI and nemotron-3-nano:30b with a custom context length (131072 tokens). (See [Modelfile](Modelfile.nemotron-3-nano_30b-128k).) The [prompt](prompt.md) is shown in the output below have a token count of 1237 tokens.
 
 ```bash
 ollama pull nemotron-3-nano:30b
