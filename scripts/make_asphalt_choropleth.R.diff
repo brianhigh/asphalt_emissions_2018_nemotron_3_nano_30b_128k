@@ -1,0 +1,108 @@
+--- make_asphalt_choropleth.orig.R	2025-12-17 10:40:21.824041200 -0800
++++ make_asphalt_choropleth.R	2025-12-17 11:01:31.679808000 -0800
+@@ -1,7 +1,5 @@
+ # --------------------------------------------------------------
+-# Title:   Create a U.S. states choropleth of asphalt emissions (2018)
+-# Author:  Your Name
+-# Date:    2025‑11‑03
++# Create a U.S. states choropleth of asphalt emissions (2018)
+ # --------------------------------------------------------------
+ 
+ ## ---- Packages -------------------------------------------------
+@@ -66,71 +64,35 @@
+   dplyr::rename(state_name_raw = State,
+                 total_kg_per_person = `Total kg/person`) %>%
+   # Convert state names to lower case for easier matching later
+-  dplyr::mutate(state_name_lc = tolower(state_name_raw))
+-
+-## ---- Load US states shapefile ------------------------------------
+-# usmap returns an sf object (geom column holds polygons)
+-us_map_df <- usmap::us_map(resolution = "high") %>%
+-  # Keep only the 'state' column which contains full state names
+-  dplyr::rename(state_full = state)
+-
+-## ---- Merge emissions data with map data ---------------------------
+-# Convert both state identifiers to lower case for a robust join
+-merged_df <- us_map_df %>%
+-  dplyr::left_join(
+-    state_emissions,
+-    by = c("state_full" = "state_name_lc")
+-  ) %>%
+-  # Remove rows that could not be matched (e.g., territories)
+-  dplyr::filter(!is.na(total_kg_per_person))
++  dplyr::mutate(state = tolower(state_name_raw))
+ 
+ ## ---- Build the choropleth ----------------------------------------
+-p <- ggplot2::ggplot(data = merged_df) +
+-  ggplot2::geom_polygon(
+-    aes(x = geom,               # geometry column supplied by usmap
+-        y = "",                   # dummy to keep syntax happy
+-        group = state_fips),      # unique identifier for each polygon
+-    color = "grey30",
+-    fill = "white",              # default background; will be overridden per tile
+-    linewidth = 0.6               # equivalent of `size` in newer ggplot2
+-  ) +
++p <- plot_usmap(data = state_emissions, values = "total_kg_per_person") +
+   # Color fill based on emissions
+-  ggplot2::scale_fill_gradient(
+-    low   = "#1a9850",   # dark green (low)
+-    high  = "#d73027",   # vivid red (high)
+-    na.value = "grey90",
+-    name  = "Total kg/person"
+-  ) +
+-  # Apply fill to polygons
+-  ggplot2::guides(fill = ggplot2::guide_legend(
+-    title.position = "top",
+-    title.hjust = 0.5,
+-    override.aes = list(colour = "black", linewidth = 1)
+-  )) +
++  scale_fill_gradient2(
++    low = "darkgreen",
++    mid = "yellow",
++    high = "red",
++    midpoint = median(state_emissions$total_kg_per_person, na.rm = TRUE),
++    name = "Total kg/person"
++  )  +
+   # Background & theme tweaks
+   ggplot2::theme_void() +                # removes all axes, ticks, etc.
+   ggplot2::theme(
+     plot.title    = ggplot2::element_text(hjust = 0.5, face = "bold", size = 18),
+     plot.subtitle = ggplot2::element_text(hjust = 0.5, size = 14, colour = "grey30"),
+     plot.caption  = ggplot2::element_text(hjust = 0, size = 10, colour = "grey30"),
+-    legend.position = "right",
++    legend.position = "bottom",
+     legend.title    = ggplot2::element_text(face = "bold")
+   ) +
+-  # Manually set fill based on our computed column
+-  ggplot2::aes(fill = total_kg_per_person) +
+-  ggplot2::scale_fill_gradient(
+-    low   = "#1a9850",
+-    high  = "#d73027",
+-    na.value = "grey90"
+-  ) +
+   # Add title, subtitle and caption
+   ggplot2::labs(
+-    title      = paste0("U.S. Asphalt Emissions (", format(Sys.Date(), "%Y"), ")"),
+-    subtitle   = "Total kilograms of asphalt emitted per person, 2018",
++    title      = paste0("U.S. Asphalt Emissions (2018)"),
++    subtitle   = "Total kilograms of asphalt emitted per person",
+     caption    = paste0(
+-      "Source: EPA – *Anthropogenic secondary organic aerosol and ozone production from ",
+-      "asphalt‑related emissions*, Environ. Sci.: Atmos., 2023,3, 1221-1230. DOI: ",
+-      "<https://doi.org/10.1039/D3EA00066D>"
++      "Source: Anthropogenic secondary organic aerosol and ozone production from ",
++      "asphalt‑related emissions,\nEnviron. Sci.: Atmos., 2023,3, 1221-1230. DOI: ",
++      "https://doi.org/10.1039/D3EA00066D"
+     )
+   )
+ 
+@@ -139,7 +101,8 @@
+ ggplot2::ggsave(
+   filename = png_path,
+   plot     = p,
+-  width    = 12, height = 9, units = "in", dpi = 300
++  width    = 12, height = 9, units = "in", dpi = 300,
++  bg = "white" # Explicitly set background for PNG
+ )
+ 
+ message("✅ Map saved to ", png_path)
